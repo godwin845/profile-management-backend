@@ -1,5 +1,7 @@
 import Education from "../models/educationModel.js";
 
+// GET ROUTE - Fetch all education data
+
 export const getEducations = async (req, res) => {
   try {
     const educations = await Education.find().sort({ createdAt: -1 });
@@ -8,6 +10,9 @@ export const getEducations = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch educations" });
   }
 };
+
+
+// POST ROUTE - Create education data
 
 export const addEducation = async (req, res) => {
   try {
@@ -18,6 +23,9 @@ export const addEducation = async (req, res) => {
     res.status(400).json({ message: "Failed to add education" });
   }
 };
+
+
+// PUT ROUTE - Update education data
 
 export const updateEducation = async (req, res) => {
   try {
@@ -36,6 +44,9 @@ export const updateEducation = async (req, res) => {
     res.status(400).json({ message: "Failed to update education" });
   }
 };
+
+
+// DELETE ROUTE - Delete education data
 
 export const deleteEducation = async (req, res) => {
   try {

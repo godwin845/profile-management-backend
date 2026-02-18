@@ -1,5 +1,7 @@
 import Certification from "../models/certificationModel.js";
 
+// GET ROUTE - Fetch all certifications
+
 export const getCertifications = async (req, res) => {
   try {
     const certifications = await Certification.find().sort({ createdAt: -1 });
@@ -8,6 +10,9 @@ export const getCertifications = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch certifications" });
   }
 };
+
+
+// POST ROUTE - Create certification
 
 export const addCertification = async (req, res) => {
   try {
@@ -18,6 +23,9 @@ export const addCertification = async (req, res) => {
     res.status(400).json({ message: "Failed to add certification" });
   }
 };
+
+
+// PUT ROUTE - Update certification
 
 export const updateCertification = async (req, res) => {
   try {
@@ -36,6 +44,9 @@ export const updateCertification = async (req, res) => {
     res.status(400).json({ message: "Failed to update certification" });
   }
 };
+
+
+// DELETE ROUTE - Delete certification
 
 export const deleteCertification = async (req, res) => {
   try {

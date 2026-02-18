@@ -9,9 +9,9 @@ import {
 
 const router = express.Router();
 
-router.post("/", protect, addSocial);
-router.get("/", protect, getSocials);
-router.put("/:id", protect, updateSocial);
-router.delete("/:id", protect, deleteSocial);
+router.post("/", addSocial);
+router.get("/", getSocials);
+router.put("/:id", updateSocial);
+router.delete("/:id", deleteSocial);
 
 export default router;

@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
+import morgan from "morgan";
+import path from "path";
+
 import profileRoutes from "./routes/profile.routes.js";
 import careerVisionRoutes from "./routes/careerVision.routes.js";
 
@@ -15,7 +18,6 @@ import skillRoutes from "./routes/skill.routes.js";
 import educationRoutes from "./routes/education.routes.js";
 import experienceRoutes from "./routes/experience.routes.js";
 import certificationRoutes from "./routes/certification.routes.js";
-import path from "path";
 
 dotenv.config();
 
@@ -23,6 +25,8 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.use(morgan("dev"));
 
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 

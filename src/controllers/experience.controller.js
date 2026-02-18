@@ -1,5 +1,7 @@
 import Experience from "../models/experienceModel.js";
 
+// GET ROUTE - Fetch all experience data
+
 export const getExperiences = async (req, res) => {
   try {
     const experiences = await Experience.find().sort({ createdAt: -1 });
@@ -8,6 +10,9 @@ export const getExperiences = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch experiences" });
   }
 };
+
+
+// POST ROUTE - Add experience data
 
 export const addExperience = async (req, res) => {
   try {
@@ -18,6 +23,9 @@ export const addExperience = async (req, res) => {
     res.status(400).json({ message: "Failed to add experience" });
   }
 };
+
+
+// PUT ROUTE - Update experience data
 
 export const updateExperience = async (req, res) => {
   try {
@@ -36,6 +44,9 @@ export const updateExperience = async (req, res) => {
     res.status(400).json({ message: "Failed to update experience" });
   }
 };
+
+
+// DELETE ROUTE - Delete experience data
 
 export const deleteExperience = async (req, res) => {
   try {

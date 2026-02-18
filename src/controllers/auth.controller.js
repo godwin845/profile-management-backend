@@ -2,6 +2,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User  from "../models/userModel.js";
 
+// POST ROUTE - Register User
+
 export const registerUser = async (req, res) => {
   const { firstName, lastName, email, password, location, dateOfBirth } = req.body;
 
@@ -28,6 +30,9 @@ export const registerUser = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+// POST ROUTE - Login User
 
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;

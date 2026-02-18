@@ -1,5 +1,19 @@
 import Social from '../models/SocialModel.js';
 
+// GET ROUTE - Fetch all social data
+
+export const getSocials = async (req, res) => {
+  try {
+    const socials = await Social.find({ user: req.user });
+    res.json(socials);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch socials" });
+  }
+};
+
+
+// POST ROUTE - Create social data
+
 export const addSocial = async (req, res) => {
   try {
     const { social, link } = req.body;
@@ -17,15 +31,7 @@ export const addSocial = async (req, res) => {
 };
 
 
-export const getSocials = async (req, res) => {
-  try {
-    const socials = await Social.find({ user: req.user });
-    res.json(socials);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch socials" });
-  }
-};
-
+// PUT ROUTE - Update social data
 
 export const updateSocial = async (req, res) => {
   try {
@@ -48,6 +54,8 @@ export const updateSocial = async (req, res) => {
   }
 };
 
+
+// DELETE ROUTE - Delete social data
 
 export const deleteSocial = async (req, res) => {
   try {

@@ -9,8 +9,8 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", protect, getCertifications);
-router.post("/", protect, addCertification);
+router.get("/", getCertifications);
+router.post("/", addCertification);
 router.put("/:index", updateCertification);
 router.delete("/:index", deleteCertification);
 

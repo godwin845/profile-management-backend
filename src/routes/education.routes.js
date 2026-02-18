@@ -9,8 +9,8 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", protect, getEducations);
-router.post("/", protect, addEducation);
+router.get("/", getEducations);
+router.post("/", addEducation);
 router.put("/:index", updateEducation);
 router.delete("/:index", deleteEducation);
 

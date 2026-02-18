@@ -1,6 +1,8 @@
 import DeleteRequest from "../models/DeleteRequestModel.js";
 import User from "../models/userModel.js";
 
+// DELETE ROUTE - Delete User Account
+
 export const deleteAccount = async (req, res) => {
   try {
     const { reason } = req.body;
@@ -9,13 +11,11 @@ export const deleteAccount = async (req, res) => {
       return res.status(400).json({ message: "Reason is required" });
     }
 
-    // Save deletion request
     await DeleteRequest.create({
       user: req.user,
       reason: reason.trim(),
     });
 
-    // OPTIONAL: Immediately delete user account
     await User.findByIdAndDelete(req.user);
 
     res.json({

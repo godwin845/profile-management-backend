@@ -9,9 +9,9 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", protect, getExperiences);
-router.post("/", protect, addExperience);
-router.put("/:index", protect, updateExperience);
-router.delete("/:index", protect, deleteExperience);
+router.get("/", getExperiences);
+router.post("/", addExperience);
+router.put("/:index", updateExperience);
+router.delete("/:index", deleteExperience);
 
 export default router;

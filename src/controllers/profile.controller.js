@@ -1,5 +1,7 @@
 import Profile from "../models/profileModel.js";
 
+// GET ROUTE - Fetch all profile data
+
 export const getProfile = async (req, res) => {
   try {
     const profile = await Profile.findOne();
@@ -8,6 +10,9 @@ export const getProfile = async (req, res) => {
     res.status(500).json({ message: "Server Error", error: err });
   }
 };
+
+
+// POST ROUTE - Create profile data
 
 export const createProfile = async (req, res) => {
   try {
@@ -22,6 +27,9 @@ export const createProfile = async (req, res) => {
     res.status(500).json({ message: "Failed to create profile", error: err });
   }
 };
+
+
+// PUT ROUTE - Update profile data
 
 export const updateProfile = async (req, res) => {
   try {

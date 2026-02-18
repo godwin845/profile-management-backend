@@ -1,5 +1,7 @@
 import CareerVision from "../models/careerVisionModel.js";
 
+// GET ROUTE - Fetch all data
+
 export const getCareerVision = async (req, res) => {
   try {
     const vision = await CareerVision.findOne();
@@ -8,6 +10,9 @@ export const getCareerVision = async (req, res) => {
     res.status(500).json({ message: "Server Error", error: err });
   }
 };
+
+
+// POST ROUTE - Create data
 
 export const createCareerVision = async (req, res) => {
   try {
@@ -18,6 +23,9 @@ export const createCareerVision = async (req, res) => {
     res.status(500).json({ message: "Failed to create career vision", error: err });
   }
 };
+
+
+// PUT ROUTE - Update data
 
 export const updateCareerVision = async (req, res) => {
   try {
