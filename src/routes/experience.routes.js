@@ -1,17 +1,16 @@
 import express from "express";
 import {
   getExperiences,
-  addExperience,
+  createExperience,
   updateExperience,
   deleteExperience
 } from "../controllers/experience.controller.js";
-import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.get("/", getExperiences);
-router.post("/", addExperience);
-router.put("/:index", updateExperience);
-router.delete("/:index", deleteExperience);
+router.post("/", createExperience);
+router.put("/:id", updateExperience);
+router.delete("/:id", deleteExperience);
 
 export default router;

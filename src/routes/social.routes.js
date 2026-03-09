@@ -1,17 +1,23 @@
 import express from "express";
-import { protect } from "../middleware/authMiddleware.js";
 import {
+  getAllSocials,
   addSocial,
-  getSocials,
   updateSocial,
   deleteSocial,
 } from "../controllers/social.controller.js";
 
 const router = express.Router();
 
+// GET all socials
+router.get("/", getAllSocials);
+
+// POST new social
 router.post("/", addSocial);
-router.get("/", getSocials);
+
+// PUT update social
 router.put("/:id", updateSocial);
+
+// DELETE social
 router.delete("/:id", deleteSocial);
 
 export default router;

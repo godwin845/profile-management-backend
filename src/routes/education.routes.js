@@ -1,17 +1,20 @@
 import express from "express";
+
 import {
-  getEducations,
+  getEducation,
   addEducation,
   updateEducation,
   deleteEducation
 } from "../controllers/education.controller.js";
-import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", getEducations);
+router.get("/", getEducation);
+
 router.post("/", addEducation);
-router.put("/:index", updateEducation);
-router.delete("/:index", deleteEducation);
+
+router.put("/:id", updateEducation);
+
+router.delete("/:id", deleteEducation);
 
 export default router;

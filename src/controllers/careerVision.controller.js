@@ -19,7 +19,7 @@ export const createCareerVision = async (req, res) => {
     const vision = new CareerVision(req.body);
     await vision.save();
     res.status(201).json(vision);
-  } catch (err) {
+  } catch (err) { 
     res.status(500).json({ message: "Failed to create career vision", error: err });
   }
 };
@@ -34,5 +34,20 @@ export const updateCareerVision = async (req, res) => {
     res.json(vision);
   } catch (err) {
     res.status(500).json({ message: "Failed to update career vision", error: err });
+  }
+};
+
+
+// DELETE ROUTE - Delete data
+
+export const deleteCareerVision = async (req, res) => {
+  try {
+    const vision = await CareerVision.findByIdAndDelete(req.params.id);
+    if (!vision) {
+      return res.status(404).json({ message: "Career vision not found" });
+    }
+    res.json({ message: "Career vision deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete career vision", error: err });
   }
 };

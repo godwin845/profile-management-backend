@@ -1,10 +1,10 @@
 import express from "express";
-import { getSkills, saveSkills } from "../controllers/skill.controller.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { getSkills, saveSkills, deleteSkill } from "../controllers/skill.controller.js";
 
 const router = express.Router();
 
-router.get("/", protect, getSkills);
-router.post("/", protect, saveSkills);
+router.get("/", getSkills);
+router.post("/", saveSkills);
+router.delete("/:skillName", deleteSkill);
 
 export default router;

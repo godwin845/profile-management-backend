@@ -1,73 +1,66 @@
-import Social from '../models/SocialModel.js';
+import Social from "../models/socialModel.js";
 
-// GET ROUTE - Fetch all social data
-
-export const getSocials = async (req, res) => {
+// Get all social links
+export const getAllSocials = async (req, res) => {
   try {
-    const socials = await Social.find({ user: req.user });
+    const socials = await Social.find();
     res.json(socials);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch socials" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-
-// POST ROUTE - Create social data
-
+// Add a new social link
 export const addSocial = async (req, res) => {
   try {
     const { social, link } = req.body;
+    if (!social || !link) {
+      return res.status(400).json({ error: "Social and link are required" });
+    }
 
-    const newSocial = await Social.create({
-      user: req.user,
-      social,
-      link,
-    });
-
+    const newSocial = new Social({ social, link });
+    await newSocial.save();
     res.status(201).json(newSocial);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to add social" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-
-// PUT ROUTE - Update social data
-
+// Update a social link
 export const updateSocial = async (req, res) => {
   try {
-    const social = await Social.findById(req.params.id);
+    const { id } = req.params;
+    const { social, link } = req.body;
 
-    if (!social) {
-      return res.status(404).json({ message: "Social not found" });
+    const updatedSocial = await Social.findByIdAndUpdate(
+      id,
+      { social, link },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedSocial) {
+      return res.status(404).json({ error: "Social link not found" });
     }
 
-    if (social.user.toString() !== req.user) {
-      return res.status(403).json({ message: "Unauthorized" });
-    }
-
-    social.link = req.body.link || social.link;
-
-    const updated = await social.save();
-    res.json(updated);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update social" });
+    res.json(updatedSocial);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-
-// DELETE ROUTE - Delete social data
-
+// Delete a social link
 export const deleteSocial = async (req, res) => {
   try {
-    const social = await Social.findById(req.params.id);
+    const { id } = req.params;
 
-    if (!social) {
-      return res.status(404).json({ message: "Social not found" });
+    const deleted = await Social.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return res.status(404).json({ error: "Social link not found" });
     }
 
-    await social.deleteOne();
-    res.json({ message: "Social deleted" });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to delete social" });
+    res.json(deleted);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };

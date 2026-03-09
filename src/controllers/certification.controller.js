@@ -1,63 +1,47 @@
-import Certification from "../models/certificationModel.js";
+import Certificate from "../models/certificationModel.js";
 
-// GET ROUTE - Fetch all certifications
-
-export const getCertifications = async (req, res) => {
+// GET all certificates
+export const getCertificates = async (req, res) => {
   try {
-    const certifications = await Certification.find().sort({ createdAt: -1 });
-    res.json(certifications);
+    const certificates = await Certificate.find();
+    res.json(certificates);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch certifications" });
+    res.status(500).json({ message: error.message });
   }
 };
 
-
-// POST ROUTE - Create certification
-
-export const addCertification = async (req, res) => {
+// CREATE certificate
+export const createCertificate = async (req, res) => {
   try {
-    const newCertification = new Certification(req.body);
-    const saved = await newCertification.save();
-    res.status(201).json(saved);
+    const newCertificate = new Certificate(req.body);
+    const saved = await newCertificate.save();
+    res.json(saved);
   } catch (error) {
-    res.status(400).json({ message: "Failed to add certification" });
+    res.status(500).json({ message: error.message });
   }
 };
 
-
-// PUT ROUTE - Update certification
-
-export const updateCertification = async (req, res) => {
+// UPDATE certificate
+export const updateCertificate = async (req, res) => {
   try {
-    const updated = await Certification.findByIdAndUpdate(
+    const updated = await Certificate.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true }
     );
 
-    if (!updated) {
-      return res.status(404).json({ message: "Certification not found" });
-    }
-
     res.json(updated);
   } catch (error) {
-    res.status(400).json({ message: "Failed to update certification" });
+    res.status(500).json({ message: error.message });
   }
 };
 
-
-// DELETE ROUTE - Delete certification
-
-export const deleteCertification = async (req, res) => {
+// DELETE certificate
+export const deleteCertificate = async (req, res) => {
   try {
-    const deleted = await Certification.findByIdAndDelete(req.params.id);
-
-    if (!deleted) {
-      return res.status(404).json({ message: "Certification not found" });
-    }
-
-    res.json(deleted);
+    await Certificate.findByIdAndDelete(req.params.id);
+    res.json({ message: "Certificate deleted" });
   } catch (error) {
-    res.status(400).json({ message: "Failed to delete certification" });
+    res.status(500).json({ message: error.message });
   }
 };

@@ -1,16 +1,41 @@
 import mongoose from "mongoose";
 
-const EducationSchema = new mongoose.Schema(
+const educationSchema = new mongoose.Schema(
   {
-    college: String,
-    degree: String,
-    field: String,
-    location: String,
-    doj: Date,
-    doe: Date,
-    studying: Boolean,
+    college: {
+      type: String,
+      required: true
+    },
+
+    degree: {
+      type: String,
+      required: true
+    },
+
+    field: {
+      type: String,
+      required: true
+    },
+
+    location: {
+      type: String
+    },
+
+    doj: {
+      type: Date,
+      required: true
+    },
+
+    doe: {
+      type: Date
+    },
+
+    studying: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: true }
 );
 
-export default mongoose.model("Education", EducationSchema);
+export default mongoose.model("Education", educationSchema);

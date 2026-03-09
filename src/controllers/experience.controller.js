@@ -1,32 +1,30 @@
 import Experience from "../models/experienceModel.js";
 
-// GET ROUTE - Fetch all experience data
 
+// GET all experiences
 export const getExperiences = async (req, res) => {
   try {
-    const experiences = await Experience.find().sort({ createdAt: -1 });
+    const experiences = await Experience.find();
     res.json(experiences);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch experiences" });
+    res.status(500).json({ message: error.message });
   }
 };
 
 
-// POST ROUTE - Add experience data
-
-export const addExperience = async (req, res) => {
+// CREATE experience
+export const createExperience = async (req, res) => {
   try {
     const newExperience = new Experience(req.body);
     const saved = await newExperience.save();
-    res.status(201).json(saved);
+    res.json(saved);
   } catch (error) {
-    res.status(400).json({ message: "Failed to add experience" });
+    res.status(500).json({ message: error.message });
   }
 };
 
 
-// PUT ROUTE - Update experience data
-
+// UPDATE experience
 export const updateExperience = async (req, res) => {
   try {
     const updated = await Experience.findByIdAndUpdate(
@@ -35,29 +33,19 @@ export const updateExperience = async (req, res) => {
       { new: true }
     );
 
-    if (!updated) {
-      return res.status(404).json({ message: "Experience not found" });
-    }
-
     res.json(updated);
   } catch (error) {
-    res.status(400).json({ message: "Failed to update experience" });
+    res.status(500).json({ message: error.message });
   }
 };
 
 
-// DELETE ROUTE - Delete experience data
-
+// DELETE experience
 export const deleteExperience = async (req, res) => {
   try {
-    const deleted = await Experience.findByIdAndDelete(req.params.id);
-
-    if (!deleted) {
-      return res.status(404).json({ message: "Experience not found" });
-    }
-
-    res.json(deleted);
+    await Experience.findByIdAndDelete(req.params.id);
+    res.json({ message: "Experience deleted" });
   } catch (error) {
-    res.status(400).json({ message: "Failed to delete experience" });
+    res.status(500).json({ message: error.message });
   }
 };

@@ -1,15 +1,25 @@
 import mongoose from "mongoose";
 
-const ExperienceSchema = new mongoose.Schema(
-  {
-    role: String,
-    company: String,
-    location: String,
-    doj: Date,
-    doe: Date,
-    present: Boolean,
+const experienceSchema = new mongoose.Schema({
+  role: {
+    type: String,
+    required: true,
   },
-  { timestamps: true }
-);
+  company: {
+    type: String,
+    required: true,
+  },
+  location: String,
+  doj: {
+    type: String,
+    required: true,
+  },
+  doe: String,
+  
+  present: {
+    type: Boolean,
+    default: false,
+  },
+});
 
-export default mongoose.model("Experience", ExperienceSchema);
+export default mongoose.model("Experience", experienceSchema);

@@ -10,6 +10,7 @@ export const protect = (req, res, next) => {
     req.userId = decoded.id;
     next();
   } catch (err) {
+    console.log(err);
     return res.status(401).json({ message: "Token is invalid or expired" });
   }
 };

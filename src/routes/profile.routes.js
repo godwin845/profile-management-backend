@@ -1,11 +1,26 @@
 import express from "express";
-import { getProfile, createProfile, updateProfile } from "../controllers/profile.controller.js";
-import { upload } from "../utils/upload.js";
+import {
+  createOrUpdateProfile,
+  getAllProfiles,
+  deleteProfile,
+} from "../controllers/profile.controller.js";
+import { uploadFields } from "../utils/upload.js";
 
 const router = express.Router();
 
-router.get("/", getProfile);
-router.post("/", upload.fields([{ name: "profileImage" }, { name: "resume" }]), createProfile);
-router.put("/:id", upload.fields([{ name: "profileImage" }, { name: "resume" }]), updateProfile);
+// POST profile
+router.post("/", uploadFields, createOrUpdateProfile);
+
+// PUT profile (update)
+router.put("/:id", uploadFields, async (req, res) => {
+  req.body.id = req.params.id;
+  await createOrUpdateProfile(req, res);
+});
+
+// GET all profiles
+router.get("/", getAllProfiles);
+
+// DELETE profile
+router.delete("/:id", deleteProfile);
 
 export default router;
