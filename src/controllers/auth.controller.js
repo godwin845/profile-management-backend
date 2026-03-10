@@ -1,54 +1,47 @@
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import User  from "../models/userModel.js";
-
-// POST ROUTE - Register User
+import {
+  registerUserService,
+  loginUserService,
+} from "../services/auth.service.js";
+import { HTTP_STATUS } from "../constants/httpStatus.js";
 
 export const registerUser = async (req, res) => {
-  const { firstName, lastName, email, password, location, dateOfBirth } = req.body;
-
   try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
+    const result = await registerUserService(req.body);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    res.status(HTTP_STATUS.CREATED).json(result);
+  } catch (error) {
+    console.error(error);
 
-    const user = await User.create({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-      location,
-      dateOfBirth,
-    });
+    if (error.message === "User already exists") {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ message: error.message });
+    }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-
-    res.status(201).json({ token, user });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ message: "Server error" });
   }
 };
 
-
-// POST ROUTE - Login User
-
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    const { email, password } = req.body;
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    const result = await loginUserService(email, password);
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    res.status(HTTP_STATUS.OK).json(result);
+  } catch (error) {
+    console.error(error);
 
-    res.json({ token, user });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    if (error.message === "Invalid credentials") {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .json({ message: error.message });
+    }
+
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ message: "Server error" });
   }
 };

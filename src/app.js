@@ -6,21 +6,13 @@ import morgan from "morgan";
 import path from "path";
 
 import profileRoutes from "./routes/profile.routes.js";
-
 import careerVisionRoutes from "./routes/careerVision.routes.js";
-
 import authRoutes from "./routes/auth.routes.js";
-
 import accountRoutes from "./routes/account.routes.js";
-
 import socialRoutes from "./routes/social.routes.js";
-
 import skillRoutes from "./routes/skill.routes.js";
-
 import educationRoutes from "./routes/education.routes.js";
-
 import experienceRoutes from "./routes/experience.routes.js";
-
 import certificationRoutes from "./routes/certification.routes.js";
 
 

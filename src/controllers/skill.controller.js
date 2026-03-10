@@ -1,42 +1,72 @@
-import Skill from "../models/skillModel.js";
+import {
+  getSkillsService,
+  saveSkillsService,
+  deleteSkillService,
+} from "../services/skill.service.js";
+
+import { HTTP_STATUS } from "../constants/httpStatus.js";
 
 // GET all skills
 export const getSkills = async (req, res) => {
   try {
-    const skills = await Skill.find().sort({ name: 1 });
-    res.json(skills.map(s => s.name));
-  } catch (err) {
-    res.status(500).json({ message: "Failed to fetch skills" });
+    const skills = await getSkillsService();
+
+    res.status(HTTP_STATUS.OK).json(skills);
+  } catch (error) {
+    console.log(error);
+
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ message: "Failed to fetch skills" });
   }
 };
 
-// POST skills (replace all)
+// POST skills
 export const saveSkills = async (req, res) => {
   try {
     const { skills } = req.body;
-    if (!Array.isArray(skills)) {
-      return res.status(400).json({ message: "Skills must be an array" });
+
+    if (!skills) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ message: "Skills field is required" });
     }
 
-    // Remove existing skills and insert new ones
-    await Skill.deleteMany({});
-    const skillDocs = skills.map(name => ({ name }));
-    await Skill.insertMany(skillDocs);
+    const result = await saveSkillsService(skills);
 
-    res.json({ message: "Skills updated successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to save skills" });
+    res.status(HTTP_STATUS.OK).json(result);
+  } catch (error) {
+    console.error("Error saving skills:", error);
+
+    if (error.message === "Skills must be an array") {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ message: error.message });
+    }
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      message: error.message || "Failed to save skills",
+    });
   }
 };
 
-// DELETE a skill by name
+// DELETE skill
 export const deleteSkill = async (req, res) => {
   try {
-    const { skillName } = req.params;
-    await Skill.findOneAndDelete({ name: skillName });
-    res.json({ message: `Skill "${skillName}" deleted` });
-  } catch (err) {
-    res.status(500).json({ message: "Failed to delete skill" });
+    const decodedSkillName = decodeURIComponent(req.params.skillName);
+
+    const result = await deleteSkillService(decodedSkillName);
+
+    res.status(HTTP_STATUS.OK).json(result);
+  } catch (error) {
+    if (error.message === "Skill not found") {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ message: error.message });
+    }
+
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ message: "Failed to delete skill" });
   }
 };

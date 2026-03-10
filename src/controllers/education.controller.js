@@ -1,47 +1,68 @@
-import Education from "../models/educationModel.js";
+import {
+  getEducationService,
+  addEducationService,
+  updateEducationService,
+  deleteEducationService
+} from "../services/education.service.js";
+
+import { HTTP_STATUS } from "../constants/httpStatus.js";
 
 export const getEducation = async (req, res) => {
   try {
-    const education = await Education.find().sort({ createdAt: -1 });
+    const education = await getEducationService();
 
-    res.json(education);
+    res.status(HTTP_STATUS.OK).json(education);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 };
 
 export const addEducation = async (req, res) => {
   try {
-    const newEdu = new Education(req.body);
+    const education = await addEducationService(req.body);
 
-    const saved = await newEdu.save();
-
-    res.status(201).json(saved);
+    res.status(HTTP_STATUS.CREATED).json(education);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 };
 
 export const updateEducation = async (req, res) => {
   try {
-    const updated = await Education.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const education = await updateEducationService(req.params.id, req.body);
 
-    res.json(updated);
+    res.status(HTTP_STATUS.OK).json(education);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    if (error.message === "Education not found") {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ message: error.message });
+    }
+
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 };
 
 export const deleteEducation = async (req, res) => {
   try {
-    await Education.findByIdAndDelete(req.params.id);
+    const result = await deleteEducationService(req.params.id);
 
-    res.json({ message: "Education deleted" });
+    res.status(HTTP_STATUS.OK).json(result);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    if (error.message === "Education not found") {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ message: error.message });
+    }
+
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 };

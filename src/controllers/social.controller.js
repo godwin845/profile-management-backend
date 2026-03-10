@@ -1,66 +1,74 @@
-import Social from "../models/socialModel.js";
+import {
+  getAllSocialsService,
+  addSocialService,
+  updateSocialService,
+  deleteSocialService,
+} from "../services/social.service.js";
 
-// Get all social links
+import { HTTP_STATUS } from "../constants/httpStatus.js";
+
 export const getAllSocials = async (req, res) => {
   try {
-    const socials = await Social.find();
-    res.json(socials);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const socials = await getAllSocialsService();
+
+    res.status(HTTP_STATUS.OK).json(socials);
+  } catch (error) {
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: error.message });
   }
 };
 
-// Add a new social link
 export const addSocial = async (req, res) => {
   try {
-    const { social, link } = req.body;
-    if (!social || !link) {
-      return res.status(400).json({ error: "Social and link are required" });
+    const social = await addSocialService(req.body);
+
+    res.status(HTTP_STATUS.CREATED).json(social);
+  } catch (error) {
+    if (error.message === "Social and link are required") {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: error.message });
     }
 
-    const newSocial = new Social({ social, link });
-    await newSocial.save();
-    res.status(201).json(newSocial);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: error.message });
   }
 };
 
-// Update a social link
 export const updateSocial = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { social, link } = req.body;
+    const social = await updateSocialService(req.params.id, req.body);
 
-    const updatedSocial = await Social.findByIdAndUpdate(
-      id,
-      { social, link },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedSocial) {
-      return res.status(404).json({ error: "Social link not found" });
+    res.status(HTTP_STATUS.OK).json(social);
+  } catch (error) {
+    if (error.message === "Social link not found") {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ error: error.message });
     }
 
-    res.json(updatedSocial);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: error.message });
   }
 };
 
-// Delete a social link
 export const deleteSocial = async (req, res) => {
   try {
-    const { id } = req.params;
+    const result = await deleteSocialService(req.params.id);
 
-    const deleted = await Social.findByIdAndDelete(id);
-
-    if (!deleted) {
-      return res.status(404).json({ error: "Social link not found" });
+    res.status(HTTP_STATUS.OK).json(result);
+  } catch (error) {
+    if (error.message === "Social link not found") {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ error: error.message });
     }
 
-    res.json(deleted);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: error.message });
   }
 };

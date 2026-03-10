@@ -1,29 +1,24 @@
-import DeleteRequest from "../models/DeleteRequestModel.js";
-import User from "../models/userModel.js";
-
-// DELETE ROUTE - Delete User Account
+import { deleteAccountService } from "../services/account.service.js";
+import { HTTP_STATUS } from "../constants/httpStatus.js";
 
 export const deleteAccount = async (req, res) => {
   try {
     const { reason } = req.body;
+    const userId = req.user;
 
-    if (!reason || !reason.trim()) {
-      return res.status(400).json({ message: "Reason is required" });
-    }
+    const result = await deleteAccountService(userId, reason);
 
-    await DeleteRequest.create({
-      user: req.user,
-      reason: reason.trim(),
-    });
-
-    await User.findByIdAndDelete(req.user);
-
-    res.json({
-      message: "Account deletion request submitted successfully",
-    });
+    res.status(HTTP_STATUS.OK).json(result);
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+
+    if (error.message === "Reason is required") {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ message: error.message });
+    }
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       message: "Failed to process account deletion",
     });
   }

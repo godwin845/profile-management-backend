@@ -1,47 +1,75 @@
-import Certificate from "../models/certificationModel.js";
+import {
+  getCertificatesService,
+  createCertificateService,
+  updateCertificateService,
+  deleteCertificateService
+} from "../services/certificate.service.js";
+
+import { HTTP_STATUS } from "../constants/httpStatus.js";
 
 // GET all certificates
 export const getCertificates = async (req, res) => {
   try {
-    const certificates = await Certificate.find();
-    res.json(certificates);
+    const certificates = await getCertificatesService();
+
+    res.status(HTTP_STATUS.OK).json(certificates);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 };
 
 // CREATE certificate
 export const createCertificate = async (req, res) => {
   try {
-    const newCertificate = new Certificate(req.body);
-    const saved = await newCertificate.save();
-    res.json(saved);
+    const certificate = await createCertificateService(req.body);
+
+    res.status(HTTP_STATUS.CREATED).json(certificate);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 };
 
 // UPDATE certificate
 export const updateCertificate = async (req, res) => {
   try {
-    const updated = await Certificate.findByIdAndUpdate(
+    const certificate = await updateCertificateService(
       req.params.id,
-      req.body,
-      { new: true }
+      req.body
     );
 
-    res.json(updated);
+    res.status(HTTP_STATUS.OK).json(certificate);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    if (error.message === "Certificate not found") {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ message: error.message });
+    }
+
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 };
 
 // DELETE certificate
 export const deleteCertificate = async (req, res) => {
   try {
-    await Certificate.findByIdAndDelete(req.params.id);
-    res.json({ message: "Certificate deleted" });
+    const result = await deleteCertificateService(req.params.id);
+
+    res.status(HTTP_STATUS.OK).json(result);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    if (error.message === "Certificate not found") {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ message: error.message });
+    }
+
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 };
