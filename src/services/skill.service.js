@@ -10,7 +10,6 @@ export const saveSkillsService = async (skills) => {
     throw new Error("Skills must be an array");
   }
 
-  // Normalize incoming skills: keep only non-empty strings, trim, and de-duplicate
   const normalizedSkills = [
     ...new Set(
       skills
@@ -19,16 +18,15 @@ export const saveSkillsService = async (skills) => {
     ),
   ];
 
-  // Clear existing skills before inserting updated list
-  await Skill.deleteMany({});
+  const operations = normalizedSkills.map((name) => ({
+    updateOne: {
+      filter: { name },
+      update: { $set: { name } },
+      upsert: true,
+    },
+  }));
 
-  if (normalizedSkills.length === 0) {
-    return { message: "No skills to save" };
-  }
-
-  const skillDocs = normalizedSkills.map((name) => ({ name }));
-
-  await Skill.insertMany(skillDocs);
+  await Skill.bulkWrite(operations);
 
   return { message: "Skills updated successfully" };
 };

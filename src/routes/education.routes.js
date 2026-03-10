@@ -1,13 +1,16 @@
 import express from "express";
-
 import {
   getEducation,
   addEducation,
   updateEducation,
-  deleteEducation
+  deleteEducation,
 } from "../controllers/education.controller.js";
+import { protect } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
+
+// Protect all education routes
+router.use(protect);
 
 router.get("/", getEducation);
 

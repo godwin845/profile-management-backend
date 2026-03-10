@@ -4,7 +4,7 @@ import { HTTP_STATUS } from "../constants/httpStatus.js";
 export const deleteAccount = async (req, res) => {
   try {
     const { reason } = req.body;
-    const userId = req.user;
+    const userId = req.userId;
 
     const result = await deleteAccountService(userId, reason);
 
