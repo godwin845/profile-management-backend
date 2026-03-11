@@ -9,10 +9,9 @@ import { HTTP_STATUS } from "../constants/httpStatus.js";
 export const createOrUpdateProfile = async (req, res) => {
   try {
     const result = await createOrUpdateProfileService(req.body, req.files);
-
-    res.status(HTTP_STATUS.OK).json(result);
+    return res.status(HTTP_STATUS.OK).json(result);
   } catch (error) {
-    console.error(error);
+    console.error("PROFILE_ERROR:", error);
 
     if (error.message === "Profile not found") {
       return res
@@ -20,9 +19,12 @@ export const createOrUpdateProfile = async (req, res) => {
         .json({ error: error.message });
     }
 
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json({ error: "Server error" });
+    // TEMP: return full error details so we can see the cause
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      error: error.message || "Server error",
+      code: error.code || null,
+      name: error.name || null,
+    });
   }
 };
 
