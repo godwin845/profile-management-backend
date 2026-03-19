@@ -1,7 +1,7 @@
 import express from "express";
 import {
   createOrUpdateProfile,
-  getAllProfiles,
+  getProfile,
   deleteProfile,
 } from "../controllers/profile.controller.js";
 import { uploadFields } from "../utils/upload.js";
@@ -22,7 +22,7 @@ router.put("/:id", uploadFields, async (req, res) => {
 });
 
 // GET all profiles
-router.get("/", getAllProfiles);
+router.get("/", getProfile);
 
 // DELETE profile
 router.delete("/:id", deleteProfile);

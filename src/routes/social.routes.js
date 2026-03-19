@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  getAllSocials,
+  getSocial,
   addSocial,
   updateSocial,
   deleteSocial,
@@ -13,7 +13,7 @@ const router = express.Router();
 router.use(protect);
 
 // GET all socials
-router.get("/", getAllSocials);
+router.get("/", getSocial);
 
 // POST new social
 router.post("/", addSocial);

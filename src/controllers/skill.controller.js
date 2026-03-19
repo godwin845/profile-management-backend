@@ -1,72 +1,78 @@
 import {
   getSkillsService,
-  saveSkillsService,
-  deleteSkillService,
+  createSkillsService,
+  updateSkillsService,
+  deleteSkillsService,
 } from "../services/skill.service.js";
-
 import { HTTP_STATUS } from "../constants/httpStatus.js";
 
-// GET all skills
+// GET current user's skills
 export const getSkills = async (req, res) => {
   try {
-    const skills = await getSkillsService();
-
+    const skills = await getSkillsService(req.user._id);
     res.status(HTTP_STATUS.OK).json(skills);
-  } catch (error) {
-    console.log(error);
-
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json({ message: "Failed to fetch skills" });
+  } catch (err) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: "Server Error" });
   }
 };
 
-// POST skills
+// CREATE skills
 export const saveSkills = async (req, res) => {
   try {
     const { skills } = req.body;
-
     if (!skills) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ message: "Skills field is required" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "Skills field is required" });
     }
 
-    const result = await saveSkillsService(skills);
-
+    const result = await updateSkillsService(skills, req.user._id);
     res.status(HTTP_STATUS.OK).json(result);
-  } catch (error) {
-    console.error("Error saving skills:", error);
-
-    if (error.message === "Skills must be an array") {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ message: error.message });
+  } catch (err) {
+    if (err.message === "Skills must be an array") {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: err.message });
     }
-
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      message: error.message || "Failed to save skills",
+      error: "Failed to save skills",
+      details: err.message,
     });
   }
 };
 
-// DELETE skill
-export const deleteSkill = async (req, res) => {
+// UPDATE skills
+export const updateSkills = async (req, res) => {
   try {
-    const decodedSkillName = decodeURIComponent(req.params.skillName);
-
-    const result = await deleteSkillService(decodedSkillName);
-
-    res.status(HTTP_STATUS.OK).json(result);
-  } catch (error) {
-    if (error.message === "Skill not found") {
-      return res
-        .status(HTTP_STATUS.NOT_FOUND)
-        .json({ message: error.message });
+    const { skills } = req.body;
+    if (!skills) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "Skills field is required" });
     }
 
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json({ message: "Failed to delete skill" });
+    const result = await updateSkillsService(skills, req.user._id);
+    res.status(HTTP_STATUS.OK).json(result);
+  } catch (err) {
+    if (err.message === "Skills must be an array") {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: err.message });
+    }
+    if (err.message === "Skills not found, create first") {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({ error: err.message });
+    }
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      error: "Failed to update skills",
+      details: err.message,
+    });
+  }
+};
+
+// DELETE skills
+export const deleteSkill = async (req, res) => {
+  try {
+    const result = await deleteSkillsService(req.user._id);
+    res.status(HTTP_STATUS.OK).json(result);
+  } catch (err) {
+    if (err.message === "Skills not found") {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({ error: err.message });
+    }
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      error: "Failed to delete skills",
+      details: err.message,
+    });
   }
 };

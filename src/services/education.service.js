@@ -1,30 +1,35 @@
 import Education from "../models/education.model.js";
 
-export const getEducationService = async () => {
-  return await Education.find().sort({ createdAt: -1 });
+// GET current user's education
+export const getEducationService = async (userId) => {
+  const education = await Education.findOne({ user: userId });
+  // Empty state: education not created yet
+  if (!education) return null;
+  return education;
 };
 
-export const addEducationService = async (data) => {
-  const education = new Education(data);
-  return await education.save();
-};
-
-export const updateEducationService = async (id, data) => {
-  const updated = await Education.findByIdAndUpdate(id, data, { new: true });
-
-  if (!updated) {
-    throw new Error("Education not found");
+// CREATE new education (only if none exists)
+export const createEducationService = async (data, userId) => {
+  const existing = await Education.findOne({ user: userId });
+  if (existing) {
+    throw new Error("Education already exists, use update instead");
   }
 
-  return updated;
+  const education = new Education({ ...data, user: userId });
+  await education.save();
+  return education;
 };
 
-export const deleteEducationService = async (id) => {
-  const deleted = await Education.findByIdAndDelete(id);
+// UPDATE existing education
+export const updateEducationService = async (data, userId) => {
+  const education = await Education.findOneAndUpdate({ user: userId }, data, { new: true });
+  if (!education) throw new Error("Education not found, create first");
+  return education;
+};
 
-  if (!deleted) {
-    throw new Error("Education not found");
-  }
-
+// DELETE current user's education
+export const deleteEducationService = async (userId) => {
+  const education = await Education.findOneAndDelete({ user: userId });
+  if (!education) throw new Error("Education not found");
   return { message: "Education deleted successfully" };
 };

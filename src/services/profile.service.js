@@ -1,10 +1,17 @@
 import Profile from "../models/profile.model.js";
 import fs from "fs";
 
-export const createOrUpdateProfileService = async (body, files) => {
-  const { firstName, lastName, email, location, bio, id } = body;
+export const createOrUpdateProfileService = async (body, files, userId) => {
+  const { firstName, lastName, email, location, bio } = body;
 
-  const profileData = { firstName, lastName, email, location, bio };
+  const profileData = {
+    firstName,
+    lastName,
+    email,
+    location,
+    bio,
+    user: userId, // associate profile with the user
+  };
 
   // handle file uploads
   if (files?.profileImage?.[0]) {
@@ -15,23 +22,18 @@ export const createOrUpdateProfileService = async (body, files) => {
     profileData.resumeFile = `/uploads/resumes/${files.resumeFile[0].filename}`;
   }
 
-  let profile;
+  // Check if profile already exists for this user
+  let profile = await Profile.findOne({ user: userId });
 
-  if (id) {
-    const existingProfile = await Profile.findById(id);
+  if (profile) {
+    // preserve existing files if not replaced
+    if (!profileData.profileImage) profileData.profileImage = profile.profileImage;
+    if (!profileData.resumeFile) profileData.resumeFile = profile.resumeFile;
 
-    if (!existingProfile) {
-      throw new Error("Profile not found");
-    }
-
-    if (!profileData.profileImage)
-      profileData.profileImage = existingProfile.profileImage;
-
-    if (!profileData.resumeFile)
-      profileData.resumeFile = existingProfile.resumeFile;
-
-    profile = await Profile.findByIdAndUpdate(id, profileData, { new: true });
+    // update the existing profile
+    profile = await Profile.findByIdAndUpdate(profile._id, profileData, { new: true });
   } else {
+    // create new profile
     profile = new Profile(profileData);
     await profile.save();
   }
@@ -45,22 +47,27 @@ export const createOrUpdateProfileService = async (body, files) => {
     bio: profile.bio,
     profileImage: profile.profileImage,
     resumeFile: profile.resumeFile,
+    user: profile.user,
   };
 };
 
-export const getAllProfilesService = async () => {
-  const profiles = await Profile.find();
+export const getProfileService = async (userId) => {
+  const profile = await Profile.findOne({ user: userId });
 
-  return profiles.map((p) => ({
-    id: p._id,
-    firstName: p.firstName,
-    lastName: p.lastName,
-    email: p.email,
-    location: p.location,
-    bio: p.bio,
-    profileImage: p.profileImage,
-    resumeFile: p.resumeFile,
-  }));
+  // Empty state: profile not created yet
+  if (!profile) return null;
+
+  return {
+    id: profile._id,
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    email: profile.email,
+    location: profile.location,
+    bio: profile.bio,
+    profileImage: profile.profileImage,
+    resumeFile: profile.resumeFile,
+    user: profile.user,
+  };
 };
 
 export const deleteProfileService = async (id) => {

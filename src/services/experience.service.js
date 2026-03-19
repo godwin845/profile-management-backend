@@ -1,30 +1,35 @@
 import Experience from "../models/experience.model.js";
 
-export const getExperiencesService = async () => {
-  return await Experience.find();
+// GET current user's experience
+export const getExperienceService = async (userId) => {
+  const experience = await Experience.findOne({ user: userId });
+  // Empty state: experience not created yet
+  if (!experience) return null;
+  return experience;
 };
 
-export const createExperienceService = async (data) => {
-  const experience = new Experience(data);
-  return await experience.save();
-};
-
-export const updateExperienceService = async (id, data) => {
-  const updated = await Experience.findByIdAndUpdate(id, data, { new: true });
-
-  if (!updated) {
-    throw new Error("Experience not found");
+// ADD new experience (only if none exists)
+export const addExperienceService = async (data, userId) => {
+  const existing = await Experience.findOne({ user: userId });
+  if (existing) {
+    throw new Error("Experience already exists, use update instead");
   }
 
-  return updated;
+  const experience = new Experience({ ...data, user: userId });
+  await experience.save();
+  return experience;
 };
 
-export const deleteExperienceService = async (id) => {
-  const deleted = await Experience.findByIdAndDelete(id);
+// UPDATE existing experience
+export const updateExperienceService = async (data, userId) => {
+  const experience = await Experience.findOneAndUpdate({ user: userId }, data, { new: true });
+  if (!experience) throw new Error("Experience not found, add first");
+  return experience;
+};
 
-  if (!deleted) {
-    throw new Error("Experience not found");
-  }
-
+// DELETE current user's experience
+export const deleteExperienceService = async (userId) => {
+  const experience = await Experience.findOneAndDelete({ user: userId });
+  if (!experience) throw new Error("Experience not found");
   return { message: "Experience deleted successfully" };
 };

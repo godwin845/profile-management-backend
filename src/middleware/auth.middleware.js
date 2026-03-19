@@ -7,7 +7,9 @@ export const protect = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.id;
+    // Attach the authenticated user in a consistent way for controllers/services
+    req.user = { _id: decoded.id };
+    req.userId = { _id: decoded.id };
     next();
   } catch (err) {
     console.log(err);

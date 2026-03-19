@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 
 const careerVisionSchema = new mongoose.Schema(
   {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, unique: true },
+    
     category: { type: String, required: true },
     field: { type: String },
     longTerm: { type: String, required: true },

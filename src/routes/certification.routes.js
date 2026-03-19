@@ -1,7 +1,7 @@
 import express from "express";
 import {
-  getCertificates,
-  createCertificate,
+  getCertificate,
+  addCertificate,
   updateCertificate,
   deleteCertificate,
 } from "../controllers/certification.controller.js";
@@ -12,8 +12,8 @@ const router = express.Router();
 // Protect all certificate routes
 router.use(protect);
 
-router.get("/", getCertificates);
-router.post("/", createCertificate);
+router.get("/", getCertificate);
+router.post("/", addCertificate);
 router.put("/:id", updateCertificate);
 router.delete("/:id", deleteCertificate);
 

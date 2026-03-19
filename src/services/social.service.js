@@ -1,43 +1,68 @@
 import Social from "../models/social.model.js";
 
-export const getAllSocialsService = async () => {
-  return await Social.find();
+// GET current user's social links
+export const getSocialService = async (userId) => {
+  const socialDoc = await Social.findOne({ user: userId });
+
+  // Empty state: user hasn't created social links yet
+  if (!socialDoc) return [];
+
+  return socialDoc.socials ?? [];
 };
 
-export const addSocialService = async (data) => {
-  const { social, link } = data;
-
-  if (!social || !link) {
-    throw new Error("Social and link are required");
+// CREATE social links (only if none exist)
+export const createSocialService = async (socials, userId) => {
+  if (!Array.isArray(socials)) {
+    throw new Error("Socials must be an array");
   }
 
-  const newSocial = new Social({ social, link });
+  for (const s of socials) {
+    if (!s.social || !s.link) {
+      throw new Error("Each social entry must have social and link fields");
+    }
+  }
 
-  return await newSocial.save();
+  const existingDoc = await Social.findOne({ user: userId });
+  if (existingDoc) {
+    throw new Error("Social links already exist, use update instead");
+  }
+
+  const socialDoc = new Social({ user: userId, socials });
+  await socialDoc.save();
+
+  return { message: "Social links created successfully", socials };
 };
 
-export const updateSocialService = async (id, data) => {
-  const { social, link } = data;
-
-  const updated = await Social.findByIdAndUpdate(
-    id,
-    { social, link },
-    { new: true, runValidators: true }
-  );
-
-  if (!updated) {
-    throw new Error("Social link not found");
+// UPDATE social links (only if they exist)
+export const updateSocialService = async (socials, userId) => {
+  if (!Array.isArray(socials)) {
+    throw new Error("Socials must be an array");
   }
 
-  return updated;
+  for (const s of socials) {
+    if (!s.social || !s.link) {
+      throw new Error("Each social entry must have social and link fields");
+    }
+  }
+
+  const socialDoc = await Social.findOne({ user: userId });
+  if (!socialDoc) {
+    throw new Error("Social links not found, create first");
+  }
+
+  socialDoc.socials = socials;
+  await socialDoc.save();
+
+  return { message: "Social links updated successfully", socials };
 };
 
-export const deleteSocialService = async (id) => {
-  const deleted = await Social.findByIdAndDelete(id);
+// DELETE current user's social links
+export const deleteSocialService = async (userId) => {
+  const socialDoc = await Social.findOneAndDelete({ user: userId });
 
-  if (!deleted) {
-    throw new Error("Social link not found");
+  if (!socialDoc) {
+    throw new Error("Social links not found");
   }
 
-  return { message: "Social link deleted successfully" };
+  return { message: "Social links deleted successfully" };
 };

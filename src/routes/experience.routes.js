@@ -1,7 +1,7 @@
 import express from "express";
 import {
-  getExperiences,
-  createExperience,
+  getExperience,
+  addExperience,
   updateExperience,
   deleteExperience,
 } from "../controllers/experience.controller.js";
@@ -12,8 +12,8 @@ const router = express.Router();
 // Protect all experience routes
 router.use(protect);
 
-router.get("/", getExperiences);
-router.post("/", createExperience);
+router.get("/", getExperience);
+router.post("/", addExperience);
 router.put("/:id", updateExperience);
 router.delete("/:id", deleteExperience);
 

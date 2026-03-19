@@ -1,30 +1,35 @@
 import CareerVision from "../models/careerVision.model.js";
 
-export const getCareerVisionService = async () => {
-  return await CareerVision.findOne();
-};
-
-export const createCareerVisionService = async (data) => {
-  const vision = new CareerVision(data);
-  return await vision.save();
-};
-
-export const updateCareerVisionService = async (id, data) => {
-  const vision = await CareerVision.findByIdAndUpdate(id, data, { new: true });
-
-  if (!vision) {
-    throw new Error("Career vision not found");
-  }
-
+// Get the current user's career vision
+export const getCareerVisionService = async (userId) => {
+  const vision = await CareerVision.findOne({ user: userId });
+  // Empty state: career vision not created yet
+  if (!vision) return null;
   return vision;
 };
 
-export const deleteCareerVisionService = async (id) => {
-  const vision = await CareerVision.findByIdAndDelete(id);
+// CREATE new career vision
+export const createCareerVisionService = async (data, userId) => {
+  // Prevent creating duplicate visions
+  const existingVision = await CareerVision.findOne({ user: userId });
+  if (existingVision) throw new Error("Career vision already exists");
 
-  if (!vision) {
-    throw new Error("Career vision not found");
-  }
+  const vision = new CareerVision({ ...data, user: userId });
+  await vision.save();
+  return vision;
+};
 
+// UPDATE existing career vision
+export const updateCareerVisionService = async (data, userId) => {
+  const vision = await CareerVision.findOneAndUpdate({ user: userId }, data, { new: true });
+
+  if (!vision) throw new Error("Career vision not found");
+  return vision;
+};
+
+// DELETE current user's career vision
+export const deleteCareerVisionService = async (userId) => {
+  const vision = await CareerVision.findOneAndDelete({ user: userId });
+  if (!vision) throw new Error("Career vision not found");
   return { message: "Career vision deleted successfully" };
 };

@@ -1,25 +1,28 @@
 import {
   createOrUpdateProfileService,
-  getAllProfilesService,
   deleteProfileService,
+  getProfileService,
 } from "../services/profile.service.js";
 
 import { HTTP_STATUS } from "../constants/httpStatus.js";
 
 export const createOrUpdateProfile = async (req, res) => {
   try {
-    const result = await createOrUpdateProfileService(req.body, req.files);
+    // Pass req.user._id; service handles create or update automatically
+    const result = await createOrUpdateProfileService(req.body, req.files, req.user._id);
+
     return res.status(HTTP_STATUS.OK).json(result);
   } catch (error) {
     console.error("PROFILE_ERROR:", error);
 
-    if (error.message === "Profile not found") {
-      return res
-        .status(HTTP_STATUS.NOT_FOUND)
-        .json({ error: error.message });
+    // Handle Mongoose unique constraint errors
+    if (error.code === 11000) {
+      return res.status(HTTP_STATUS.CONFLICT).json({
+        error: "Email or profile already exists",
+        details: error.keyValue,
+      });
     }
 
-    // TEMP: return full error details so we can see the cause
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       error: error.message || "Server error",
       code: error.code || null,
@@ -28,17 +31,14 @@ export const createOrUpdateProfile = async (req, res) => {
   }
 };
 
-export const getAllProfiles = async (req, res) => {
+export const getProfile = async (req, res) => {
   try {
-    const profiles = await getAllProfilesService();
-
-    res.status(HTTP_STATUS.OK).json(profiles);
+    const profile = await getProfileService(req.user._id);
+    return res.status(HTTP_STATUS.OK).json(profile);
   } catch (error) {
-    console.error(error);
+    console.error("PROFILE_ERROR:", error);
 
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json({ error: "Server error" });
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: "Server error" });
   }
 };
 

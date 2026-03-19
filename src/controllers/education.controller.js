@@ -1,68 +1,65 @@
 import {
   getEducationService,
-  addEducationService,
+  createEducationService,
   updateEducationService,
-  deleteEducationService
+  deleteEducationService,
 } from "../services/education.service.js";
-
 import { HTTP_STATUS } from "../constants/httpStatus.js";
 
+// GET current user's education
 export const getEducation = async (req, res) => {
   try {
-    const education = await getEducationService();
-
+    const education = await getEducationService(req.user._id);
     res.status(HTTP_STATUS.OK).json(education);
-  } catch (error) {
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json({ message: error.message });
+  } catch (err) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: "Server Error" });
   }
 };
 
+// CREATE education
 export const addEducation = async (req, res) => {
   try {
-    const education = await addEducationService(req.body);
-
+    const education = await createEducationService(req.body, req.user._id);
     res.status(HTTP_STATUS.CREATED).json(education);
-  } catch (error) {
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json({ message: error.message });
+  } catch (err) {
+    if (err.message === "Education already exists, use update instead") {
+      return res.status(HTTP_STATUS.CONFLICT).json({ error: err.message });
+    }
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      error: "Failed to create education",
+      details: err.message,
+    });
   }
 };
 
+// UPDATE education
 export const updateEducation = async (req, res) => {
   try {
-    const education = await updateEducationService(req.params.id, req.body);
-
+    const education = await updateEducationService(req.body, req.user._id);
     res.status(HTTP_STATUS.OK).json(education);
-  } catch (error) {
-    if (error.message === "Education not found") {
-      return res
-        .status(HTTP_STATUS.NOT_FOUND)
-        .json({ message: error.message });
+  } catch (err) {
+    if (err.message === "Education not found, create first") {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({ error: err.message });
     }
-
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json({ message: error.message });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      error: "Failed to update education",
+      details: err.message,
+    });
   }
 };
 
+// DELETE education
 export const deleteEducation = async (req, res) => {
   try {
-    const result = await deleteEducationService(req.params.id);
-
+    const result = await deleteEducationService(req.user._id);
     res.status(HTTP_STATUS.OK).json(result);
-  } catch (error) {
-    if (error.message === "Education not found") {
-      return res
-        .status(HTTP_STATUS.NOT_FOUND)
-        .json({ message: error.message });
+  } catch (err) {
+    if (err.message === "Education not found") {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({ error: err.message });
     }
-
-    res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .json({ message: error.message });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      error: "Failed to delete education",
+      details: err.message,
+    });
   }
 };

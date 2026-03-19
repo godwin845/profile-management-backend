@@ -1,32 +1,35 @@
 import Certificate from "../models/certification.model.js";
 
-export const getCertificatesService = async () => {
-  return await Certificate.find();
+// GET current user's certificate
+export const getCertificateService = async (userId) => {
+  const certificate = await Certificate.findOne({ user: userId });
+  // Empty state: certificate not created yet
+  if (!certificate) return null;
+  return certificate;
 };
 
-export const createCertificateService = async (data) => {
-  const certificate = new Certificate(data);
-  return await certificate.save();
-};
-
-export const updateCertificateService = async (id, data) => {
-  const updated = await Certificate.findByIdAndUpdate(id, data, {
-    new: true,
-  });
-
-  if (!updated) {
-    throw new Error("Certificate not found");
+// ADD new certificate (only if none exists)
+export const addCertificateService = async (data, userId) => {
+  const existing = await Certificate.findOne({ user: userId });
+  if (existing) {
+    throw new Error("Certificate already exists, use update instead");
   }
 
-  return updated;
+  const certificate = new Certificate({ ...data, user: userId });
+  await certificate.save();
+  return certificate;
 };
 
-export const deleteCertificateService = async (id) => {
-  const deleted = await Certificate.findByIdAndDelete(id);
+// UPDATE existing certificate
+export const updateCertificateService = async (data, userId) => {
+  const certificate = await Certificate.findOneAndUpdate({ user: userId }, data, { new: true });
+  if (!certificate) throw new Error("Certificate not found, add first");
+  return certificate;
+};
 
-  if (!deleted) {
-    throw new Error("Certificate not found");
-  }
-
+// DELETE current user's certificate
+export const deleteCertificateService = async (userId) => {
+  const certificate = await Certificate.findOneAndDelete({ user: userId });
+  if (!certificate) throw new Error("Certificate not found");
   return { message: "Certificate deleted successfully" };
 };
